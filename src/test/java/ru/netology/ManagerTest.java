@@ -1,7 +1,9 @@
 package ru.netology;
 
+import org.mockito.Mockito;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class ManagerTest {
     Film film1 = new Film(1, "Бладшот", "Боевик");
@@ -9,20 +11,11 @@ class ManagerTest {
     Film film3 = new Film(3, "Отель 'Белград'", "Комедия");
     Film film4 = new Film(4, "Джентельмены", "Боевик");
     Film film5 = new Film(5, "Человек-невидимка", "Ужасы");
-    Film film6 = new Film(6, "Тролли. Мировой тур", "Мультфильм");
-    Film film7 = new Film(7, "Номер один", "Комедия");
-    Film film8 = new Film(8, "Интерсталлар", "Фантастика");
-    Film film9 = new Film(9, "Пассажиры", "Фантастика");
-    Film film10 = new Film(10, "Человек, который изменил все", "Драма");
-    Film film11 = new Film(11, "Джанго освобожденный", "Боевик");
-    Film film12 = new Film(12, "Душа", "Мультфильм");
-    Film film13 = new Film(13, "Рататуй", "Мультфильм");
-    Film film14 = new Film(14, "Марсианин", "Фантастика");
-    Film film15 = new Film(15, "Игры разума", "Драма");
 
     @Test
     public void shouldCreateManagerWithDefaultLastCount() {
-        Manager manager = new Manager();
+        Repository repo = new Repository();
+        Manager manager = new Manager(repo);
         int expected = 10;
         int actual = manager.getLastCount();
         assertEquals(expected, actual);
@@ -30,7 +23,8 @@ class ManagerTest {
 
     @Test
     public void shouldCreateManagerWithDefaultLastCountWhenNegative() {
-        Manager manager = new Manager(-5);
+        Repository repo = new Repository();
+        Manager manager = new Manager(repo, -5);
         int expected = 10;
         int actual = manager.getLastCount();
         assertEquals(expected, actual);
@@ -38,7 +32,8 @@ class ManagerTest {
 
     @Test
     public void shouldCreateManagerWithDefaultLastCountWhenEqualZero() {
-        Manager manager = new Manager(0);
+        Repository repo = new Repository();
+        Manager manager = new Manager(repo, 0);
         int expected = 10;
         int actual = manager.getLastCount();
         assertEquals(expected, actual);
@@ -46,139 +41,65 @@ class ManagerTest {
 
     @Test
     public void shouldCreateManagerWithDefaultLastCountWhenValid() {
-        Manager manager = new Manager(1);
+        Repository repo = new Repository();
+        Manager manager = new Manager(repo, 1);
         int expected = 1;
         int actual = manager.getLastCount();
         assertEquals(expected, actual);
     }
 
     @Test
-    public void shouldSaveInEmptyArray() {
-        Manager manager = new Manager();
-        manager.save(film1);
+    public void shouldAddIntoEmptyRepository() {
+        Repository repo = new Repository();
+        Manager manager = new Manager(repo);
+        manager.add(film1);
         Film[] expected = {film1};
         Film[] actual = manager.findAll();
         assertArrayEquals(expected, actual);
     }
 
     @Test
-    public void shouldSaveInNotEmptyArray() {
-        Manager manager = new Manager();
-        manager.save(film1);
-        manager.save(film2);
-        Film[] expected = {film1, film2};
+    public void shouldAddIntoNonEmptyRepository() {
+        Repository repo = new Repository();
+        repo.save(film1);
+        repo.save(film2);
+        repo.save(film3);
+        Manager manager = new Manager(repo);
+        manager.add(film4);
+        Film[] expected = {film1, film2, film3, film4};
         Film[] actual = manager.findAll();
         assertArrayEquals(expected, actual);
     }
 
     @Test
-    public void shouldFindAllNothingWhenArrayIsEmpty() {
-        Manager manager = new Manager();
-        Film[] expected = {};
+    public void shouldFindAllMocked() {
+        Repository repo = Mockito.mock(Repository.class);
+        Film[] films = {film1, film2, film3};
+        doReturn(films).when(repo).findAll();
+        Manager manager = new Manager(repo);
+        Film[] expected = {film1, film2, film3};
         Film[] actual = manager.findAll();
         assertArrayEquals(expected, actual);
     }
 
     @Test
-    public void shouldFindAllWhenArrayIsNotEmpty() {
-        Manager manager = new Manager();
-        manager.save(film1);
-        manager.save(film2);
-        manager.save(film3);
-        manager.save(film4);
-        manager.save(film5);
-        manager.save(film6);
-        manager.save(film7);
-        manager.save(film8);
-        manager.save(film9);
-        manager.save(film10);
-        manager.save(film11);
-        manager.save(film12);
-        manager.save(film13);
-        manager.save(film14);
-        manager.save(film15);
-        Film[] expected = {film1, film2, film3, film4, film5, film6, film7, film8, film9, film10, film11, film12, film13, film14, film15};
-        Film[] actual = manager.findAll();
-        assertArrayEquals(expected, actual);
-    }
-
-    @Test
-    public void shouldReturnNothingWithDefaultLastCount() {
-        Manager manager = new Manager();
-        Film[] expected = {};
-        Film[] actual = manager.findLast();
-        assertArrayEquals(expected, actual);
-    }
-
-    @Test
-    public void shouldReturnWhenArrayLessThenDefaultLastCount() {
-        Manager manager = new Manager();
-        manager.save(film1);
-        manager.save(film2);
-        manager.save(film3);
-        manager.save(film4);
-        manager.save(film5);
+    public void shouldFindLastWhenLessThanLimitMocked() {
+        Repository repo = Mockito.mock(Repository.class);
+        Film[] films = {film1, film2, film3, film4, film5};
+        doReturn(films).when(repo).findAll();
+        Manager manager = new Manager(repo, 10);
         Film[] expected = {film5, film4, film3, film2, film1};
         Film[] actual = manager.findLast();
         assertArrayEquals(expected, actual);
     }
 
     @Test
-    public void shouldReturnWhenArrayMoreThenDefaultLastCount() {
-        Manager manager = new Manager();
-        manager.save(film1);
-        manager.save(film2);
-        manager.save(film3);
-        manager.save(film4);
-        manager.save(film5);
-        manager.save(film6);
-        manager.save(film7);
-        manager.save(film8);
-        manager.save(film9);
-        manager.save(film10);
-        manager.save(film11);
-        manager.save(film12);
-        manager.save(film13);
-        manager.save(film14);
-        manager.save(film15);
-        Film[] expected = {film15, film14, film13, film12, film11, film10, film9, film8, film7, film6};
-        Film[] actual = manager.findLast();
-        assertArrayEquals(expected, actual);
-    }
-
-    @Test
-    public void shouldReturnNothingWithCustomLastCount() {
-        Manager manager = new Manager(5);
-        Film[] expected = {};
-        Film[] actual = manager.findLast();
-        assertArrayEquals(expected, actual);
-    }
-
-    @Test
-    public void shouldReturnWhenArrayLessThenCustomLastCount() {
-        Manager manager = new Manager(5);
-        manager.save(film1);
-        manager.save(film2);
-        manager.save(film3);
-        Film[] expected = {film3, film2, film1};
-        Film[] actual = manager.findLast();
-        assertArrayEquals(expected, actual);
-    }
-
-    @Test
-    public void shouldReturnWhenArrayMoreThenCustomLastCount() {
-        Manager manager = new Manager(5);
-        manager.save(film1);
-        manager.save(film2);
-        manager.save(film3);
-        manager.save(film4);
-        manager.save(film5);
-        manager.save(film6);
-        manager.save(film7);
-        manager.save(film8);
-        manager.save(film9);
-        manager.save(film10);
-        Film[] expected = {film10, film9, film8, film7, film6};
+    public void shouldFindLastMoreLessThanLimitMocked() {
+        Repository repo = Mockito.mock(Repository.class);
+        Film[] films = {film1, film2, film3, film4, film5};
+        doReturn(films).when(repo).findAll();
+        Manager manager = new Manager(repo, 3);
+        Film[] expected = {film5, film4, film3};
         Film[] actual = manager.findLast();
         assertArrayEquals(expected, actual);
     }
