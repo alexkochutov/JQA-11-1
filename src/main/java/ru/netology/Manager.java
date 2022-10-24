@@ -1,14 +1,15 @@
 package ru.netology;
 
 public class Manager {
-    private Film[] films = new Film[0];
+    Repository repo = new Repository();
     private int lastCount = 10;
 
-    public Manager () {
-
+    public Manager (Repository repo) {
+        this.repo = repo;
     }
 
-    public Manager(int lastCount) {
+    public Manager (Repository repo, int lastCount) {
+        this.repo = repo;
         if (lastCount > 0) {
             this.lastCount = lastCount;
         }
@@ -18,24 +19,19 @@ public class Manager {
         return lastCount;
     }
 
-    public void save(Film item) {
-        Film[] tmp = new Film[films.length + 1];
-        for (int i = 0; i < films.length; i++) {
-            tmp[i] = films[i];
-        }
-        tmp[tmp.length - 1] = item;
-        films = tmp;
+    public void add(Film item) {
+        repo.save(item);
     }
 
     public Film[] findAll() {
-        return films;
+        return repo.findAll();
     }
 
     public Film[] findLast() {
-        int resultCount = films.length <= lastCount ? films.length : lastCount;
+        int resultCount = repo.findAll().length <= lastCount ? repo.findAll().length : lastCount;
         Film[] tmp = new Film[resultCount];
         for (int i = 0; i < resultCount; i++) {
-            tmp[i] = films[films.length - 1 - i];
+            tmp[i] = repo.findAll()[repo.findAll().length - 1 - i];
         }
         return tmp;
     }
